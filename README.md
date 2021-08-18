@@ -1,0 +1,12 @@
+根据ZcBeanvalidationApplicationTests测试类debug来看，
+其中一个 testValidator（）方法 使用原始的java bean validation 
+另一个方法testSpringvalidator（） 使用使用spring中的@Validated注解后，进行bean的校验
+
+其中spring中校验的bean会被cglib创造代理对象，然后按照JSR-303的规范，通过hibernate-validator的实现类来具体实现validate的功能。
+具体实现可以参照类com.example.zcbeanvalidation.validation.utils.ValidationInterceptor
+具体步骤如下：
+1、找到spring bean的类，方法，或者属性中是否被@Validated修饰，针对这个注解修饰的内容添加拦截器进行拦截
+
+2、在生成代理的类中针对执行方法中的参数，如果添加了@Valid 则对该属性做validate，本案例中使用封装好在spring中的类ValidatorImpl来做验证
+
+3、在执行代理对象的方法前先进行bean的验证，如果失败则立即抛出异常，验证通过则正常执行原始的方法
